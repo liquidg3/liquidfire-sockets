@@ -1,0 +1,21 @@
+{
+    "properties": {
+        "port": {
+            "type":    "integer",
+            "options": {
+                "label":        "Port",
+                "required":     true,
+                "defaultValue": 9999
+            }
+        },
+
+        "path": {
+            "type":    "string",
+            "options": {
+                "label":        "Path",
+                "defaultValue": "/",
+                "description":  "Optional path where the socket will listen (not supported by everyone)."
+            }
+        }
+    }
+}
