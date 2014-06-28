@@ -1,3 +1,4 @@
 {
-    "sockjs": "strategies/Sockjs"
+    "socketio": "strategies/Socket.io",
+    "sockjs": "strategies/SockJS"
 }

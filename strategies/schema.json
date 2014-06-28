@@ -3,19 +3,43 @@
         "port": {
             "type":    "integer",
             "options": {
-                "label":        "Port",
-                "required":     true,
-                "defaultValue": 9999
+                "label":    "Port",
+                "required": true,
+                "default":  9999
+            }
+        },
+
+        "mode": {
+            "type":    "select",
+            "options": {
+                "label":    "Mode",
+                "required": true,
+                "default":  "server",
+                "choices":  {
+                    "server": "Server",
+                    "client": "Client",
+                    "relay":  "Relay"
+                }
+            }
+        },
+
+        "host": {
+            "type":    "string",
+            "options": {
+                "label":       "Host",
+                "default":     "http://localhost",
+                "description": "Where should I connect?"
             }
         },
 
         "path": {
             "type":    "string",
             "options": {
-                "label":        "Path",
-                "defaultValue": "/",
-                "description":  "Optional path where the socket will listen (not supported by everyone)."
+                "label":       "Path",
+                "default":     "/sockets",
+                "description": "Optional path where the socket will listen (not supported by everyone)."
             }
         }
+
     }
 }

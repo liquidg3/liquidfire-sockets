@@ -11,14 +11,17 @@
 
 define(['altair/facades/declare',
         'altair/modules/commandcentral/mixins/_HasCommandersMixin',
-        './mixins/_HasSocketStrategiesMixin'
+        './mixins/_HasSocketStrategiesMixin',
+        'lodash'
 ], function (declare,
              _HasCommandersMixin,
-             _HasSocketStrategiesMixin) {
+             _HasSocketStrategiesMixin,
+             _) {
 
     return declare([_HasCommandersMixin, _HasSocketStrategiesMixin], {
 
         _strategies: null,
+        _activeServers: null,
 
         /*
          * @param options
@@ -29,19 +32,57 @@ define(['altair/facades/declare',
             //use the options that were passed in, or the ones we have by default; avoid mutating options
             var _options = options || this.options || {};
 
-            this.on('titan:Alfred::did-execute-server').then(this.hitch('onDidExecuteServer'));
-            this.on('titan:Alfred::will-render-theme').then(this.hitch('onWillRenderTheme'));
+            //reset active servers
+            this._activeServers = [];
+
+            //whenever a web server is booted, make sure each strategy is notified so it can copy css/js if needed
+            this.on('titan:Alfred::did-execute-server').then(this.hitch('onDidExecuteAlfredWebServer'));
 
             //let any mixin run their startup
             return this.inherited(arguments);
+
         },
 
         /**
-         * Make sure the socket listener is in place
+         * Module is being executed, by waiting until now to check our options for sockets is so all other modules
+         * have had a chance to start up
+         *
+         * @returns {*|Promise}
          */
-        onDidExecuteServer: function (e) {
+        execute: function () {
 
+            return this.inherited(arguments).then(this.hitch(function () {
 
+                var options = this.options;
+
+                //did someone pass some sockets through?
+                if (options.sockets) {
+
+                    //loop through each and start them up
+                    _.each(options.sockets, function (socket) {
+
+                        this.startupSocket(socket.name, socket.options);
+
+                    }, this);
+
+                }
+
+                return this;
+
+            }));
+
+        },
+
+        /**
+         * Make sure the sockets get a chance to configure the alfred web server (this will only do anything if socket
+         * is started before alfred).
+         *
+         * @param e {altair.events.Emitter}
+         */
+        onDidExecuteAlfredWebServer: function (e) {
+            _.each(this._activeServers, function (server) {
+                server.configureWebServer(e.get('server'));
+            });
 
         },
 
@@ -69,16 +110,6 @@ define(['altair/facades/declare',
         },
 
         /**
-         * When a theme is going to be rendered, lets drop in our public lib
-         *
-         * @param e
-         */
-        onWillRenderTheme: function (e) {
-
-
-        },
-
-        /**
          * Gets you all current strategies, key is name, value is path
          *
          * @returns {{}}
@@ -88,7 +119,8 @@ define(['altair/facades/declare',
         },
 
         /**
-         * Factory for creating and starting sockets, use this
+         * Factory for creating and starting sockets, use this.refreshStrategies before starting up anything to make
+         * sure you have the latest (unless you know you do, then don't refresh them)
          *
          * @param named
          * @param options
@@ -99,24 +131,35 @@ define(['altair/facades/declare',
                 _options    = options,
                 activeServer;
 
-            //if there is an active server in alfred, use its http server
-            if(alfred) {
+            //if there is an active server in alfred, use its http server (maybe support more later if needed)
+            if (alfred) {
 
-                activeServer = alfred.activeServers().pop();
+                activeServer = alfred.activeServers()[0];
 
-                if(activeServer) {
+                if (activeServer) {
                     _options.http = activeServer.http();
                 }
 
             }
 
+            //forge the socket strategy
             return this.forge(this._strategies[named], _options).then(function (strategy) {
+
+                //keep list of all active server
+                this._activeServers.push(strategy);
+
+                //if there is a web server,
+                if (activeServer) {
+                    strategy.configureWebServer(activeServer);
+                }
 
                 return strategy.execute();
 
-            });
+            }.bind(this));
 
         }
+
+
 
     });
 });

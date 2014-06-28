@@ -12,7 +12,7 @@ define(['altair/facades/declare',
     return declare([_Base], {
 
         _schema: schema,
-        _server: null,
+        _client: null,
         _http:   null,
         _customServer: false,
         _activeConnections: null,
@@ -27,8 +27,6 @@ define(['altair/facades/declare',
 
             var _options = options || this.options || {};
 
-            this._js = ['http://cdn.sockjs.org/sockjs-0.3.min.js', ''];
-
             //so we can track everyone who is connected
             this._activeConnections = [];
 
@@ -37,11 +35,14 @@ define(['altair/facades/declare',
             //let normal startup run, then create server
             return this.inherited(arguments).then(function () {
 
+                //setup js
+                this._js = ['http://cdn.sockjs.org/sockjs-0.3.min.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/SockJS.js?url=' + this.get('host') + ':' + this.get('port') + this.get('path')];
+
                 //create a socket server
-                this._server = sockjs.createServer(options);
+                this._client = sockjs.createServer(options);
 
                 //did we receive an http server?
-                if(options.http) {
+                if (options.http) {
                     this.log('using existing http server');
                     this._http = options.http;
                 } else {
@@ -50,8 +51,12 @@ define(['altair/facades/declare',
                     this._customServer = true;
                 }
 
+                this._http.on('error', function (err) {
+                    this.log(err);
+                }.bind(this));
+
                 //events
-                this._http.on('connection', function(conn) {
+                this._http.on('connection', function (conn) {
 
                     //emit our connect event
                     this.parent.emit('did-connect', {
@@ -59,14 +64,18 @@ define(['altair/facades/declare',
                         strategy: this
                     });
 
-                    conn.on('data', function(message) {
+                    conn.on('data', function (message) {
 
-                        conn.write(message);
+                        this.onMessage(message);
 
                     }.bind(this));
 
+                    conn.on('error', function (err) {
+                        this.log(err);
+                    }.bind(this));
+
                     //emit close event
-                    conn.on('close', function() {
+                    conn.on('close', function () {
 
                         this.parent.emit('did-disconnect', {
                             connection: conn,
@@ -96,20 +105,21 @@ define(['altair/facades/declare',
 
             this.log('installing socket handlers');
 
-            this._server.installHandlers(this._http, options);
+            this._client.installHandlers(this._http, options);
 
             if(this._customServer) {
-                this.log('starting http server.');
+                this.log('starting http server on port: ' + this.get('port'));
                 this._http.listen(this.get('port'), '0.0.0.0');
             }
 
         },
 
         /**
-         * @param connection
-         * @param message
+         * @param message string message directly from sockjs
          */
-        onMessage: function (e) {
+        onMessage: function (message) {
+
+            console.log('message' + message);
 
 
         }
