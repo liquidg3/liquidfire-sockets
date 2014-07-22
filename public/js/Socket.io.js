@@ -1,22 +1,27 @@
 ;
-(function (altair) {
+(function () {
 
-    //help me to parse settings
-    function decodeQueryString(string) {
+    "use strict";
 
-        var query = string,
-            vars = query.split('&'),
-            results = {};
+    //lazy environment checks
+    var isCommonJs = !!(typeof module !== 'undefined' && module.exports),
+        isBrowser = typeof window !== 'undefined',
+        _io;
 
-        for (var i = 0; i < vars.length; i++) {
-            var pair = vars[i].split('=');
-            results[pair[0]] = pair[1];
+    //try and load io-client if in commonJs
+    if (isCommonJs) {
+        try {
+            _io = require('socket.io-client');
+        } catch (e) {
+
         }
-
-        return results;
     }
 
-    //give each listener a unique id
+    /**
+     * Listeners are given a random ID so they can be identified later.
+     *
+     * @returns {string}
+     */
     function makeId() {
         var text = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -27,6 +32,13 @@
         return text;
     }
 
+    /**
+     * Simple event wrapper.
+     *
+     * @param name
+     * @param data
+     * @constructor
+     */
     var Event = function (name, data) {
         this.name = name;
         this.data = data;
@@ -35,58 +47,115 @@
         };
     };
 
-    //read config
-    var scripts = document.getElementsByTagName('script'),
-        index = scripts.length - 1,
-        script = scripts[index],
-        options = decodeQueryString(script.src.split('?')[1]);
-
-    if (!options || !altair.sockets || !io) {
-        throw new Error('The Socket.io file cannot be manually include. Use the liquidfire:Sockets module to use it properly.');
-    }
-
-
     var Adapter = function (options) {
-        this._url = options.url;
-        this._client = null;
-        this._listeners = {};
 
+        var _options = options || {};
+
+        this._url           = _options.url;
+        this._connection    = null;
+        this._listeners     = {};
+        this._io            = _options.io || _io || io;
+        this.Event          = Event;
     };
 
     //connect to socket using adapter
-    Adapter.prototype.connect = function () {
+    Adapter.prototype.connect = function (options) {
+
+        var _options = options || {
+            url: this._url
+        }, url = _options.url || this._url;
+
+        if (!url) {
+            throw new Error('You must have a url to connect to.');
+        }
+
+        delete _options.url;
 
         //create new client
-        this._client = new io(this._url);
+        this._connection = this._io.connect(url, _options);
 
         //attach all listeners that may have been set before connect was called
-        this.on('connect', this.attachListeners.bind(this));
-        this.on('dispatch-event', this.onServerEvent.bind(this));
+        this.attachListeners();
+        this.on('dispatch-server-event', this.onServerEvent.bind(this));
+
+        return this;
     };
 
     Adapter.prototype.send = function (message) {
-        this._client.emit('message', message);
+        this._connection.emit('message', message);
+        return this;
     };
 
     Adapter.prototype.emit = function (name, data, callback) {
-        this._client.emit(name, data, callback);
 
-    };
-
-    Adapter.prototype.onServerEvent = function (data) {
-
-        var listener = this._listeners[data.id],
-            e;
-
-        if(listener) {
-            e = new Event(data.event, data);
-            listener.callback(e);
+        //it's an altair event
+        if (name.search(/:/) > -1) {
+            data.__event = name;
+            name = 'client-event';
         }
 
+        if (callback) {
+            this._connection.emit(name, data, callback);
+        } else {
+            this._connection.emit(name, data)
+        }
+
+        return this;
     };
 
-    Adapter.prototype.onMessage = function (data) {
-        console.log('on message', data);
+    Adapter.prototype.disconnect = function (callback) {
+
+        var interval;
+
+        if (this._connection && this._connection.connected) {
+            this._connection.disconnect();
+
+            interval = setInterval(function () {
+
+                if (!this._connection.connected) {
+                    callback(this);
+                    clearInterval(interval);
+                }
+
+            }.bind(this), 100);
+
+        } else {
+            callback(this);
+        }
+    };
+
+    /**
+     * Remove any listener
+     *
+     * @param event
+     * @param cb
+     * @returns {Adapter}
+     */
+    Adapter.prototype.removeListener = function (event, cb) {
+
+        if (this._connection) {
+            this._connection.removeListener(event, cb);
+        }
+
+        var cleaned = {},
+            i = 0,
+            events = Object.keys(this._listeners),
+            listener;
+
+        for (i; i < events.length; i++) {
+
+            listener = this._listeners[events[i]];
+            if (listener.event === event && listener.callback === cb) {
+                //remove the listener
+            } else {
+                cleaned[events[i]] = listener;
+            }
+        }
+
+        this._listeners = cleaned;
+
+        return this;
+
     };
 
     /**
@@ -102,74 +171,143 @@
         for (i = 0; i < events.length; i++) {
 
             listener = this._listeners[events[i]];
-
-            this.emit('register-listener', {
-                event: listener.event,
-                query: listener.query,
-                id:    listener.id
-            }, function (pass) {
-
-                if(!pass) {
-                    throw new Error('Could not listen into event ' + listener.event + '. Make sure the proper events are configured for sockets.');
-                }
-
-            });
+            this.on(listener.event, listener.query, listener.callback, listener.id);
 
         }
 
     };
 
     /**
-     * Add an event listener that will be passed through to the server
+     * Turn socket.io events into something more formal
+     */
+    Adapter.prototype.coerceEvent = function (event, data) {
+
+        var _data = data || {};
+
+        _data.client = this;
+
+        return new this.Event(event, _data);
+
+    },
+
+    /**
+     * Add an event listener on the servers side if it has a ":" in it. Otherwise keep the listener local
+     *
      * @param event
      * @param query
      * @param callback
      */
-    Adapter.prototype.on = function (event, query, callback) {
+        Adapter.prototype.on = function (event, query, callback, _id) {
 
-        if (['connect', 'event', 'disconnect', 'dispatch-event'].indexOf(event) > -1) {
-            return this._client.on(event, callback || query);
-        }
+            //query
+            if (!callback) {
+                callback = query;
+                query = undefined;
+            }
 
-        //query
-        if (!callback) {
-            callback = query;
-            query = undefined;
-        }
+            var listener = {
+                event:    event,
+                id:       _id || makeId(),
+                callback: callback,
+                query:    query
+            };
 
-        var listener = {
-            event:    event,
-            id:       makeId(),
-            callback: callback,
-            query:    query
+            this._listeners[listener.id] = listener;
+
+            if (this._connection) {
+
+                if (event.search(/:/) === -1) {
+                    return this._connection.on(event, function (data) {
+                        callback(this.coerceEvent(event, data));
+                    }.bind(this));
+                }
+
+                this._connection.emit('register-listener', {
+                    event: listener.event,
+                    query: listener.query,
+                    id:    listener.id
+                }, function (pass) {
+
+                    if (!pass) {
+                        throw new Error('Could not listen into event ' + listener.event + '. Make sure the proper events are configured for sockets.');
+                    }
+
+                });
+
+            }
+
         };
 
 
-        this._listeners[listener.id] = listener;
+    /**
+     * When an event is dispatched on the server and we have a listener for it
+     *
+     * @param data
+     */
+    Adapter.prototype.onServerEvent = function (data) {
 
-        if (this._client) {
+        var listener = this._listeners[data.__id];
 
-            this.emit('register-listener', {
-                event: listener.event,
-                query: listener.query,
-                id:    listener.id
-            }, function (pass) {
-
-                if(!pass) {
-                    throw new Error('Could not listen into event ' + listener.event + '. Make sure the proper events are configured for sockets.');
-                }
-
-            });
-
+        if (listener) {
+            listener.callback(this.coerceEvent(data.__event, data));
         }
 
     };
 
-    //create adapter and pass it to sockets.
-    altair.sockets.setAdapter(new Adapter(options));
+    //help me to parse settings
+    function decodeQueryString(string) {
 
-    //start the server... dick move?
-    altair.sockets.connect();
+        if (!string) {
+            return {};
+        }
+
+        var query = string,
+            vars = query.split('&'),
+            results = {};
+
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            results[pair[0]] = pair[1];
+        }
+
+        return results;
+    }
 
 
-})(window.altair);
+    //if we are in the browser
+    if (typeof document !== 'undefined') {
+
+        var scripts = document.getElementsByTagName('script'),
+            index = scripts.length - 1,
+            script = scripts[index],
+            options = decodeQueryString(script.src.split('?')[1]);
+
+        if (options && Object.keys(options).length > 0) {
+
+            //create adapter and pass it to sockets.
+            altair.sockets.setAdapter(new Adapter(options));
+
+            //connect to the server
+            altair.sockets.connect();
+
+
+        }
+
+        if (!window.altair) {
+            window.altair = {};
+        }
+
+        if (!window.altair.socketAdapters) {
+            window.altair.socketAdapters = {};
+        }
+
+        window.altair.socketAdapters = {'socketio': Adapter};
+    }
+
+    //we are in commonjs
+    if (typeof module != 'undefined' && module.exports) {
+        module.exports = Adapter;
+    }
+
+
+})();

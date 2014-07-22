@@ -21,7 +21,7 @@ define(['altair/facades/declare',
     return declare([_HasCommandersMixin, _HasSocketStrategiesMixin], {
 
         _strategies: null,
-        _activeServers: null,
+        _activeSockets: null,
 
         /*
          * @param options
@@ -33,10 +33,12 @@ define(['altair/facades/declare',
             var _options = options || this.options || {};
 
             //reset active servers
-            this._activeServers = [];
+            this._activeSockets = [];
 
             //whenever a web server is booted, make sure each strategy is notified so it can copy css/js if needed
-            this.on('titan:Alfred::did-execute-server').then(this.hitch('onDidExecuteAlfredWebServer'));
+            if(this.nexus('titan:Alfred')) {
+                this.on('titan:Alfred::did-execute-server').then(this.hitch('onDidExecuteAlfredWebServer'));
+            }
 
             //let any mixin run their startup
             return this.inherited(arguments);
@@ -53,7 +55,7 @@ define(['altair/facades/declare',
 
             return this.inherited(arguments).then(this.hitch(function () {
 
-                var options = this.options;
+                var options = this.options || {};
 
                 //did someone pass some sockets through?
                 if (options.sockets) {
@@ -61,7 +63,7 @@ define(['altair/facades/declare',
                     //loop through each and start them up
                     _.each(options.sockets, function (socket) {
 
-                        this.startupSocket(socket.name, socket.options);
+                        this.startupSocket(socket.name, socket.options).otherwise(this.hitch('log'));
 
                     }, this);
 
@@ -80,7 +82,7 @@ define(['altair/facades/declare',
          * @param e {altair.events.Emitter}
          */
         onDidExecuteAlfredWebServer: function (e) {
-            _.each(this._activeServers, function (server) {
+            _.each(this._activeSockets, function (server) {
                 server.configureWebServer(e.get('server'));
             });
 
@@ -142,11 +144,24 @@ define(['altair/facades/declare',
 
             }
 
+            if (!this._strategies) {
+                throw new Error('You must call refreshStrategies() on liquidfire:Sockets before you can startup a socket server.');
+            }
+
+            if (!_.has(this._strategies, named)) {
+                throw new Error('No socket strategy named "' + named + '" available. Options are: ' + Object.keys(this._strategies).join(', '));
+
+            }
+
             //forge the socket strategy
             return this.forge(this._strategies[named], _options).then(function (strategy) {
 
                 //keep list of all active server
-                this._activeServers.push(strategy);
+                this._activeSockets.push(strategy);
+
+                if (alfred) {
+                    activeServer = alfred.activeServers()[0];
+                }
 
                 //if there is a web server,
                 if (activeServer) {
@@ -156,6 +171,14 @@ define(['altair/facades/declare',
                 return strategy.execute();
 
             }.bind(this));
+
+        },
+
+        teardown: function () {
+
+            return this.all(_.map(this._activeSockets, function (s) {
+                return s.teardown();
+            }));
 
         }
 

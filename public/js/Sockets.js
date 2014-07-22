@@ -10,7 +10,7 @@
     if (!altair.sockets) {
 
         /**
-         * Sockets interface
+         * Sockets constructor
          *
          * @constructor
          */

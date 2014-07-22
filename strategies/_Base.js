@@ -1,9 +1,10 @@
 define(['altair/facades/declare',
-    'altair/Lifecycle',
-    'apollo/_HasSchemaMixin'
-], function (declare, Lifecycle, _HasSchemaMixin) {
+        'altair/Lifecycle',
+        'apollo/_HasSchemaMixin',
+        'altair/events/Emitter'
+], function (declare, Lifecycle, _HasSchemaMixin, Emitter) {
 
-    return declare([Lifecycle, _HasSchemaMixin], {
+    return declare([Lifecycle, _HasSchemaMixin, Emitter], {
 
         _js: null,
 
@@ -17,7 +18,6 @@ define(['altair/facades/declare',
 
             var router = server.router(),
                 routes = server.appConfig.routes,
-                js = [],
                 dfd;
 
             if (this._js) {
