@@ -81,6 +81,15 @@
         return this;
     };
 
+    /**
+     * Are we connected?
+     *
+     * @returns {boolean}
+     */
+    Adapter.prototype.isConnected = function () {
+        return this._connection && this._connection.socket.connected;
+    };
+
     Adapter.prototype.send = function (message) {
         this._connection.emit('message', message);
         return this;
@@ -184,6 +193,12 @@
 
         var _data = data || {};
 
+        if(data instanceof Error) {
+            _data = {
+                error: data
+            }
+        }
+
         _data.client = this;
 
         return new this.Event(event, _data);
@@ -216,8 +231,17 @@
 
             if (this._connection) {
 
+                //it is NOT an altair server side event
                 if (event.search(/:/) === -1) {
+
                     return this._connection.on(event, function (data) {
+
+                        //error events are trickier because they return a string and NOT an error object (i know, right)
+                        if(event === 'error') {
+                            console.log('error event', data);
+                        }
+
+
                         callback(this.coerceEvent(event, data));
                     }.bind(this));
                 }
@@ -282,17 +306,6 @@
             script = scripts[index],
             options = decodeQueryString(script.src.split('?')[1]);
 
-        if (options && Object.keys(options).length > 0) {
-
-            //create adapter and pass it to sockets.
-            altair.sockets.setAdapter(new Adapter(options));
-
-            //connect to the server
-            altair.sockets.connect();
-
-
-        }
-
         if (!window.altair) {
             window.altair = {};
         }
@@ -300,6 +313,19 @@
         if (!window.altair.socketAdapters) {
             window.altair.socketAdapters = {};
         }
+
+        if (options && Object.keys(options).length > 0 && window.altair.sockets) {
+
+            //create adapter and pass it to sockets.
+            window.altair.sockets.setAdapter(new Adapter(options));
+
+            //connect to the server
+            window.altair.sockets.connect();
+
+
+        }
+
+
 
         window.altair.socketAdapters = {'socketio': Adapter};
     }
