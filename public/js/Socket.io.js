@@ -241,8 +241,8 @@
                             console.log('error event', data);
                         }
 
-
                         callback(this.coerceEvent(event, data));
+
                     }.bind(this));
                 }
 
