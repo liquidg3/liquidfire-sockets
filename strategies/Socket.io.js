@@ -338,19 +338,8 @@ define(['altair/facades/declare',
 
             } else if (this.get('mode') === 'client') {
 
-                var finished = function () {
-
-                    if (this.deferred) {
-                        this.deferred.resolve(this);
-                    }
-
-                    this._client.removeListener('connect', finished);
-
-                }.bind(this);
-
-                this._client.on('connect', finished);
+                //custom options
                 var _options = _.clone(this.options);
-                _options.transport = 'polling';
 
                 //options that can break the client
                 delete _options.host;
@@ -358,7 +347,8 @@ define(['altair/facades/declare',
                 delete _options.mode;
                 delete _options.path;
 
-                this._client.connect(_options);
+                this.client().connect(_options);
+                this.deferred.resolve(this);
 
             } else {
                 this.deferred.resolve(this);

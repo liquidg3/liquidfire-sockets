@@ -238,7 +238,7 @@
 
                         //error events are trickier because they return a string and NOT an error object (i know, right)
                         if(event === 'error') {
-                            console.log('error event', data);
+                            data = { error: new Error(data || 'unknown') }; //No error details sent sent from socket.io, BSBSBSBS
                         }
 
                         callback(this.coerceEvent(event, data));
@@ -324,8 +324,6 @@
 
 
         }
-
-
 
         window.altair.socketAdapters = {'socketio': Adapter};
     }
