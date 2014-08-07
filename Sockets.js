@@ -36,7 +36,7 @@ define(['altair/facades/declare',
             this._activeSockets = [];
 
             //whenever a web server is booted, make sure each strategy is notified so it can copy css/js if needed
-            if(this.nexus('titan:Alfred')) {
+            if (this.nexus('titan:Alfred')) {
                 this.on('titan:Alfred::did-execute-server').then(this.hitch('onDidExecuteAlfredWebServer'));
             }
 
@@ -82,6 +82,7 @@ define(['altair/facades/declare',
          * @param e {altair.events.Emitter}
          */
         onDidExecuteAlfredWebServer: function (e) {
+
             _.each(this._activeSockets, function (server) {
                 server.configureWebServer(e.get('server'));
             });
