@@ -315,6 +315,24 @@ define(['altair/facades/declare',
 
         },
 
+        /**
+         * The options passed to the client on connect(). You will need this if you are connecting manually and want
+         * to honor the current configuration.
+         */
+        clientOptions: function () {
+
+            //custom options
+            var _options = _.clone(this.options);
+
+            //options that can break the client
+            delete _options.host;
+            delete _options.port;
+            delete _options.mode;
+            delete _options.path;
+
+            return _options;
+        },
+
 
         /**
          * Attach to and start http server if one is not started.
@@ -341,20 +359,17 @@ define(['altair/facades/declare',
 
             } else if (this.get('mode') === 'client') {
 
-                //custom options
-                var _options = _.clone(this.options);
 
-                //options that can break the client
-                delete _options.host;
-                delete _options.port;
-                delete _options.mode;
-                delete _options.path;
+                if (this.get('connectOnExecute')) {
+                    this.client().connect(this.clientOptions());
+                }
 
-                this.client().connect(_options);
                 this.deferred.resolve(this);
 
             } else {
+
                 this.deferred.resolve(this);
+
             }
 
             return this.inherited(arguments);

@@ -41,11 +41,12 @@
             }
         },
 
-        "browserClientOnly": {
+        "connectOnExecute": {
             "type":    "boolean",
             "options": {
-                "label":       "Browser Client Only",
-                "description": ""
+                "label":       "Connect on creation",
+                "description": "When creating a socket client, should I attempt to connect to the host automatically?",
+                "default":     true
             }
         }
 
