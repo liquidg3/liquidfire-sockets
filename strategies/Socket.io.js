@@ -258,6 +258,11 @@ define(['altair/facades/declare',
 
                 var conn = e.get('connection');
 
+                //how in the world does this happen?
+                if (!conn) {
+                    return;
+                }
+
                 this._activeConnections.push(conn);
 
                 //emit our connect event
