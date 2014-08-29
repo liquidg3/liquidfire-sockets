@@ -2,11 +2,12 @@ define(['altair/facades/declare',
     './_Base',
     'altair/events/Deferred',
     'altair/plugins/node!http',
+    'altair/plugins/node!fs',
     'altair/plugins/node!socket.io',
     'altair/plugins/node!../public/js/Socket.io.js',
     'altair/plugins/config!./schema.json',
     'lodash'
-], function (declare, _Base, Deferred, http, io, Client, schema, _) {
+], function (declare, _Base, Deferred, http, fs, io, Client, schema, _) {
 
     return declare([_Base], {
         _ignoreExtensions:  ['events'],
@@ -18,6 +19,7 @@ define(['altair/facades/declare',
         _activeConnections: null,
         _activeListeners:   null,
         _onDeferreds:       null,
+        ssl:                null, //secure settings
 
         /**
          * Setup the socket adapter.
@@ -39,33 +41,73 @@ define(['altair/facades/declare',
             //let normal startup run, then create server
             return this.inherited(arguments).then(function () {
 
-                    this.log('setting up socket.io ' + this.get('mode') + ' @ ' + this.url());
+                this.log('setting up socket.io ' + this.get('mode') + ' @ ' + this.url());
 
-                    //our js with path host settings, etc.
-                    this._js = ['//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/Socket.io.js?url=' + this.url()];
+                //our js with path host settings, etc.
+                this._js = ['//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/Socket.io.js?url=' + this.url()];
 
-                    //if we are in server modes
-                    if (['server', 'relay'].indexOf(this.get('mode')) > -1) {
-                        this.setupServer();
-                    }
+                //do we have ssl?
+                this.configureSsl(_options);
 
-                    //connect to our server
-                    if (['client', 'relay'].indexOf(this.get('mode')) > -1) {
-                        this.setupClient();
+                //if we are in server modes
+                if (['server', 'relay'].indexOf(this.get('mode')) > -1) {
+                    this.setupServer();
+                }
 
-                    }
+                //connect to our server
+                if (['client', 'relay'].indexOf(this.get('mode')) > -1) {
+                    this.setupClient();
 
-                    return this.all({
-                        _cleaner: this.parent.forge('util/EventCleaner')
-                    });
+                }
 
-                }.bind(this)).then(function (deps) {
 
-                    declare.safeMixin(this, deps);
+                return this.all({
+                    _cleaner: this.parent.forge('util/EventCleaner')
+                });
 
-                    return this;
+            }.bind(this)).then(function (deps) {
 
-                }.bind(this));
+                declare.safeMixin(this, deps);
+
+                return this;
+
+            }.bind(this));
+
+        },
+
+        configureSsl: function (options) {
+
+            if (options.privateKeyPath) {
+
+                this.assert(options.privateKeyPath, 'in order to use SSL, you need to supply a privateKeyPath');
+                this.assert(options.certificatePath, 'in order to use SSL, you need to supply a certificatePath');
+
+                var read = fs.readFileSync,
+                    altair = this.nexus('Altair');
+
+                this.ssl = {
+                    key: read(altair.resolvePath(options.privateKeyPath)),
+                    cert: read(altair.resolvePath(options.certificatePath))
+                };
+
+                //is there a ca?
+                if (options.ca) {
+
+                    this.ssl.ca = [];
+
+                    this.assertArray(options.ca, 'Ca must be an array of paths');
+
+                    _.each(options.ca, function (path) {
+
+                        this.ssl.ca.push(altair.resolvePath(path));
+
+                    }, this);
+
+                } else {
+                    this.ssl.ca = null;
+                }
+
+            }
 
         },
 
@@ -240,7 +282,14 @@ define(['altair/facades/declare',
             } else {
 
                 this._http = http.createServer();
-                this._server = io.listen(this._http, { path: this.get('path')});
+
+                var options = { path: this.get('path') };
+
+                if (this.ssl) {
+                    options = _.merge(options, this.ssl);
+                }
+
+                this._server = io.listen(this._http, options);
 
                 this._http.on('error', function (err) {
                     console.log(err);

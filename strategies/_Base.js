@@ -1,10 +1,11 @@
 define(['altair/facades/declare',
         'altair/Lifecycle',
         'apollo/_HasSchemaMixin',
-        'altair/events/Emitter'
-], function (declare, Lifecycle, _HasSchemaMixin, Emitter) {
+        'altair/events/Emitter',
+        'altair/mixins/_AssertMixin'
+], function (declare, Lifecycle, _HasSchemaMixin, Emitter, _AssertMixin) {
 
-    return declare([Lifecycle, _HasSchemaMixin, Emitter], {
+    return declare([Lifecycle, _HasSchemaMixin, Emitter, _AssertMixin], {
 
         _js: null,
 
