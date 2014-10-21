@@ -1,4 +1,5 @@
 {
     "socketio": "strategies/Socket.io",
+    "socket.io": "strategies/Socket.io",
     "sockjs": "strategies/SockJS"
 }
