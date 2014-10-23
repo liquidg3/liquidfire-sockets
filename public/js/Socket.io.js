@@ -45,6 +45,10 @@
         this.get = function (name, defaultValue) {
             return this.data[name] || defaultValue;
         };
+        this.set = function (name, value) {
+            this.data[name] = value;
+            return this;
+        };
     };
 
     var Adapter = function (options) {
