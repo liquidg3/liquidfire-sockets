@@ -16,7 +16,7 @@ define(['altair/facades/declare',
         },
 
         /**
-         * Startup a web server
+         * Startup a socket server
          */
         start: function (options) {
 

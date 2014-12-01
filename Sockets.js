@@ -60,12 +60,16 @@ define(['altair/facades/declare',
                 //did someone pass some sockets through?
                 if (options.sockets) {
 
-                    //loop through each and start them up
-                    _.each(options.sockets, function (socket) {
+                    this.refreshStrategies().then(function () {
 
-                        this.startupSocket(socket.name, socket.options).otherwise(this.hitch('log'));
+                        //loop through each and start them up
+                        _.each(options.sockets, function (socket) {
 
-                    }, this);
+                            this.startupSocket(socket.name, socket.options).otherwise(this.hitch('log'));
+
+                        }, this);
+
+                    }.bind(this)).otherwise(this.log.bind(this));
 
                 }
 
