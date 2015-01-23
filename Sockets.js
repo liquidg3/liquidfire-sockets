@@ -12,10 +12,12 @@
 define(['altair/facades/declare',
         'altair/modules/commandcentral/mixins/_HasCommandersMixin',
         './mixins/_HasSocketStrategiesMixin',
+        './extensions/Entity',
         'lodash'
 ], function (declare,
              _HasCommandersMixin,
              _HasSocketStrategiesMixin,
+             EntityExtension,
              _) {
 
     return declare([_HasCommandersMixin, _HasSocketStrategiesMixin], {
@@ -34,6 +36,12 @@ define(['altair/facades/declare',
 
             //reset active servers
             this._activeSockets = [];
+
+            //getSocketValues extension
+            var extensions = this.nexus('cartridges/Extension'),
+                ext        = new EntityExtension(extensions);
+
+            extensions.addExtension(ext);
 
             //whenever a web server is booted, make sure each strategy is notified so it can copy css/js if needed
             if (this.nexus('titan:Alfred')) {

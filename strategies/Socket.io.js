@@ -317,7 +317,9 @@ define(['altair/facades/declare',
 
                 //emit our connect event
                 this.parentEmit('did-connect', {
-                    connection: conn
+                    connection: conn,
+                    server:     this,
+                    path:       this.get('path', '/')
                 });
 
                 //remote end is registering for an event
@@ -338,7 +340,9 @@ define(['altair/facades/declare',
                 conn.on('disconnect', function () {
 
                     this.parentEmit('did-disconnect', {
-                        connection: conn
+                        connection: conn,
+                        server:     this,
+                        path:       this.get('path', '/')
                     });
 
                     this.unRegisterEventListeners(conn);
