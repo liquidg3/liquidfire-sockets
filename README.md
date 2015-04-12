@@ -15,8 +15,7 @@ To start a server when you start up `Altair`, add the following to your `modules
                 "options": {
                     "port": 9999,
                     "mode": "server",
-                    "host": "http://my-server-location.com",
-                    "path": "/"
+                    "host": "http://my-server-location.com"
                 }
             },
             

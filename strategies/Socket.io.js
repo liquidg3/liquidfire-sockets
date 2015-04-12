@@ -282,17 +282,54 @@ define(['altair/facades/declare',
 
             } else {
 
+                var options = {},
+                    titan   = this.nexus('titan:Alfred'),
+                    skip    = false,
+                    server;
 
-                var options = { path: this.get('path'), secure: true };//, log: false };
-
-                if (this.ssl) {
-                    this._http = https.createServer(this.ssl);
-                } else {
-                    this._http = http.createServer();
+                if (this.get('path')) {
+                    options.path = this.get('path');
                 }
 
-                this._server = io.listen(this._http, options);
-                //this._server.set('log level', 1)
+                if (this.ssl) {
+                    options.secure = true;
+                }
+
+                //try and use titan's servers if we can
+                if (titan) {
+
+                    server = titan.activeServers()[titan.activeServers().length - 1];
+
+                    if (server) {
+
+                        if (this.ssl && server.https() && server.get('sslPort') === this.get('port')) {
+                            this._http = server.https();
+                        } else if (server.http() && server.get('port') === this.get('port')) {
+                            this._http = server.http();
+                        }
+
+
+                    }
+
+                }
+
+
+                if (!this._http) {
+
+                    if (this.ssl) {
+                        this._http = https.createServer(this.ssl);
+                    } else {
+                        this._http = http.createServer();
+                    }
+
+                    this._server = io.listen(this._http, options);
+                } else {
+
+                    this._server = io.listen(this._http, options);
+                    //this._serversByPort[this.get('port')] = this._server;
+
+                }
+
 
                 this._http.on('error', function (err) {
                     console.log(err);

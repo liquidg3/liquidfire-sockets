@@ -36,7 +36,7 @@
             "type":    "string",
             "options": {
                 "label":       "Path",
-                "default":     "",
+                "default":     false,
                 "description": "Optional path where the socket will listen (socket.io calls it a namespace). It should start with a '/' if set to anything."
             }
         },
