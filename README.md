@@ -14,7 +14,7 @@ To start a server when you start up `Altair`, add the following to your `modules
                 "name": "socketio",
                 "options": {
                     "port": 9999,
-                    "model": "server",
+                    "mode": "server",
                     "host": "http://my-server-location.com",
                     "path": "/"
                 }
@@ -24,7 +24,7 @@ To start a server when you start up `Altair`, add the following to your `modules
                 "name": "socketio",
                 "options": {
                     "port": 9999,
-                    "model": "server",
+                    "mode": "server",
                     "host": "http://my-server-location.com",
                     "path": "/a-namespace"
                 }
@@ -42,7 +42,7 @@ startup: function () {
     //listen in on the first socket server
     this.on('liquidfire:Sockets::did-connect', {
         path: '/'
-    }).then(this.hitch('onMainSocketConnection'));
+    }).then(this.hitch('onSocketConnection'));
     
     //listen in on the second one
     this.on('liquidfire:Sockets::did-connect', {
@@ -82,3 +82,31 @@ onSomeEvent: function (connection, data) {
 
 ```
 Since the socket.io adapter is currently 0.9.x, you'll need to use the [docs here](https://github.com/Automattic/socket.io/tree/0.9.17).
+
+## Using Socket Browser Side
+You can connect to your socket server from the browser from any javascript file.
+```js
+
+altair.sockets.emit('test', {
+    foo: 'bar'
+}, function () {
+    
+})
+
+```
+##SSL
+Getting socket connections to work via SSL means configuring the `Sockets` module. You can do that
+in your `modules.json` or your `modules-dev.json`.
+
+```json
+
+{
+    "liquidfire:Sockets": {
+    
+        "privateKeyPath":  "../ssl/server.com.key",
+        "certificatePath": "../ssl/server.com.crt",
+        "ca":              ["../ssl/rapidssl_ca_1.pem", "../ssl/rapidssl_ca_2.pem"]
+    }
+}
+
+```

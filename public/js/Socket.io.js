@@ -78,6 +78,7 @@
         delete _options.url;
 
         //create new client
+        console.log(url, _options);
         this._connection = this._io.connect(url, _options);
 
         //attach all listeners that may have been set before connect was called

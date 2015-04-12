@@ -45,7 +45,8 @@ define(['altair/facades/declare',
                 this.log('setting up socket.io ' + this.get('mode') + ' @ ' + this.url());
 
                 //our js with path host settings, etc.
-                this._js = ['//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/Socket.io.js?url=' + this.url()];
+                //this._js = ['//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/Socket.io.js?url=' + this.url()];
+                this._js = ['https://cdn.socket.io/socket.io-1.3.3.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/Socket.io.js?url=' + this.url()];
 
                 //do we have ssl?
                 this.configureSsl(_options);
@@ -151,7 +152,7 @@ define(['altair/facades/declare',
 
                 if (this.get('mode') === 'server') {
 
-                    if (this.get('path')) {
+                    if (this.get('path') && this.get('path') != '/') {
 
                         this.server().on(event, resolve);
                     } else {
@@ -257,7 +258,7 @@ define(['altair/facades/declare',
 
         server: function () {
 
-            if (this._server && this.get('path')) {
+            if (this._server && this.get('path') && this.get('path') != '/') {
                 return this.connectionForNamespace(this.get('path'));
             }
 
@@ -282,7 +283,7 @@ define(['altair/facades/declare',
             } else {
 
 
-                var options = { path: this.get('path') };
+                var options = { path: this.get('path'), secure: true };//, log: false };
 
                 if (this.ssl) {
                     this._http = https.createServer(this.ssl);
@@ -291,6 +292,7 @@ define(['altair/facades/declare',
                 }
 
                 this._server = io.listen(this._http, options);
+                //this._server.set('log level', 1)
 
                 this._http.on('error', function (err) {
                     console.log(err);
