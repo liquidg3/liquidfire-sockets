@@ -326,7 +326,7 @@ define(['altair/facades/declare',
                 } else {
 
                     this._server = io.listen(this._http, options);
-                    //this._serversByPort[this.get('port')] = this._server;
+                    this._serversByPort[this.get('port')] = this._server;
 
                 }
 
