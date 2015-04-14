@@ -236,13 +236,13 @@ define(['altair/facades/declare',
                 };
             }
 
-            _data.strategy = this;
-            _data.mode = this.get('mode');
-            _data.port = this.get('port');
-            _data.host = this.get('host');
-            _data.path = this.get('path');
-            _data.client = this.client();
-            _data.server = this.server();
+            _data.strategy  = this;
+            _data.mode      = _data.mode || this.get('mode');
+            _data.port      = _data.port || this.get('port');
+            _data.host      = _data.host || this.get('host');
+            _data.path      = _data.path || this.get('path');
+            _data.client    = _data.client || this.client();
+            _data.server    = _data.server || this.server();
 
             return _data;
 
@@ -287,12 +287,12 @@ define(['altair/facades/declare',
                     skip    = false,
                     server;
 
-                if (this.get('path')) {
+                if (this.get('path') && this.get('path') !== '/') {
                     options.path = this.get('path');
                 }
 
                 if (this.ssl) {
-                    options.secure = true;
+                    //options.secure = true;
                 }
 
                 //try and use titan's servers if we can
@@ -302,12 +302,11 @@ define(['altair/facades/declare',
 
                     if (server) {
 
-                        if (this.ssl && server.https() && server.get('sslPort') === this.get('port')) {
+                        if (server.https() && server.get('sslPort') === this.get('port')) {
                             this._http = server.https();
                         } else if (server.http() && server.get('port') === this.get('port')) {
                             this._http = server.http();
                         }
-
 
                     }
 
@@ -322,13 +321,9 @@ define(['altair/facades/declare',
                         this._http = http.createServer();
                     }
 
-                    this._server = io.listen(this._http, options);
-                } else {
-
-                    this._server = io.listen(this._http, options);
-                    this._serversByPort[this.get('port')] = this._server;
-
                 }
+
+                this._server = io(this._http);
 
 
                 this._http.on('error', function (err) {
