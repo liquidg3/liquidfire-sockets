@@ -46,7 +46,7 @@ define(['altair/facades/declare',
 
                 //our js with path host settings, etc.
                 //this._js = ['//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/Socket.io.js?url=' + this.url()];
-                this._js = ['https://cdn.socket.io/socket.io-1.3.3.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/Socket.io.js?url=' + this.url()];
+                this._js = ['https://cdn.socket.io/socket.io-1.3.5.js', '/public/_sockets/js/Sockets.js', '/public/_sockets/js/Socket.io.js?url=' + this.url()];
 
                 //do we have ssl?
                 this.configureSsl(_options);
