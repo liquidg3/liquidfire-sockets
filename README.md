@@ -98,14 +98,51 @@ Getting socket connections to work via SSL means configuring the `Sockets` modul
 in your `modules.json` or your `modules-dev.json`.
 
 ```json
-
 {
     "liquidfire:Sockets": {
-    
-        "privateKeyPath":  "../ssl/server.com.key",
-        "certificatePath": "../ssl/server.com.crt",
-        "ca":              ["../ssl/rapidssl_ca_1.pem", "../ssl/rapidssl_ca_2.pem"]
+        "sockets": [
+            {
+                "name": "socketio",
+                "options": {
+                    "port": 9999,
+                    "mode": "server",
+                    "host": "http://my-server-location.com",
+                    "privateKeyPath":  "../ssl/server.com.key",
+                    "certificatePath": "../ssl/server.com.crt",
+                    "ca":              ["../ssl/rapidssl_ca_1.pem", "../ssl/rapidssl_ca_2.pem"]
+                }
+            }
+        ]
     }
 }
 
 ```
+
+##Disabling JS includes
+You may not want the includes that come with the `Sockets` module. Here is what includes could look like by default (versions may differ):
+
+```html
+<script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+<script src="/public/_sockets/js/Sockets.js"></script>
+<script src="/public/_sockets/js/Socket.io.js?url=https://taysmacbookpro.local:8080false"></script>
+```
+
+If you don't want any of those included, add this to your `modules.json`.
+{
+    "liquidfire:Sockets": {
+        "includeMedia": false,
+        "sockets": [
+            {
+                "name": "socketio",
+                "options": {
+                    "port": 9999,
+                    "mode": "server",
+                    "host": "http://my-server-location.com",
+                    "privateKeyPath":  "../ssl/server.com.key",
+                    "certificatePath": "../ssl/server.com.crt",
+                    "ca":              ["../ssl/rapidssl_ca_1.pem", "../ssl/rapidssl_ca_2.pem"]
+                }
+            }
+        ]
+    }
+}

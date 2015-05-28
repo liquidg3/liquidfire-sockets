@@ -178,7 +178,7 @@ define(['altair/facades/declare',
 
                 //if there is a web server,
                 if (activeServer) {
-                    strategy.configureWebServer(activeServer);
+                    strategy.configureWebServer(activeServer, this.options);
                 }
 
                 return strategy.execute();

@@ -15,24 +15,25 @@ define(['altair/facades/declare',
          * @param server
          * @returns {*|Promise}
          */
-        configureWebServer: function (server) {
+        configureWebServer: function (server, options) {
 
             var router = server.router(),
                 routes = server.appConfig.routes,
+                _options = options || {},
                 dfd;
 
             if (this._js) {
 
                 //everything will be
                 server.serveStatically(this.parent.resolvePath('public'), '/public/_sockets');
-                dfd = router.attachMedia(routes, { js: this._js });
 
-            } else {
-                dfd = new this.Deferred();
-                dfd.resolve();
+                if (_options.includeMedia !== false) {
+                    dfd = router.attachMedia(routes, { js: this._js });
+                }
+
             }
 
-            return dfd.then(function () {
+            return this.when(dfd).then(function () {
                 return this;
             }.bind(this));
 
