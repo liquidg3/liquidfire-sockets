@@ -193,6 +193,10 @@ define(['altair/facades/declare',
                 return s.teardown();
             }));
 
+        },
+
+        activeSockets: function () {
+            return this._activeSockets;
         }
 
 
