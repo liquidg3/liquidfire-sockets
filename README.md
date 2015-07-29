@@ -80,7 +80,6 @@ onSomeEvent: function (connection, data) {
 }
 
 ```
-Since the socket.io adapter is currently 0.9.x, you'll need to use the [docs here](https://github.com/Automattic/socket.io/tree/0.9.17).
 
 ## Using Socket Browser Side
 You can connect to your socket server from the browser from any javascript file.
@@ -146,3 +145,49 @@ If you don't want any of those included, add this to your `modules.json`.
         ]
     }
 }
+
+## Sharing an http server between Sockets and Alfred
+If you want to share 1 http server between `Alfred` and `Sockets` so you can have sockets and web browsing on the same port, simple match up your settings and tell `Alfred` not to start.
+
+Set `listenOnStart` to `false` in your `alfred.json` like so:
+```json
+
+{
+    "site": {
+        "strategy": "express3",
+        "options":  {
+            "port": 80,
+            "vendor": "spruce",
+            "domain": "website.com",
+            "listenOnStart": false,
+            "media":  {
+                ....
+            },
+            "routes": {
+                ....
+            }
+
+        }
+    }
+}
+```
+
+Then make sure the settings for `Sockets` matches in your `modules.json`:
+
+```json
+"liquidfire:Sockets": {
+    "sockets": [
+        {
+            "name": "socketio",
+            "options": {
+                "port": 80,
+                "mode": "server",
+                "host": "http://website.com"
+            }
+        }
+
+    ]
+}
+```
+
+Now your sockets and http requests all go through the same port and connection!

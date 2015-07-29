@@ -458,7 +458,8 @@ define(['altair/facades/declare',
                 this._serversByPort[this.get('port')] = this._server;
 
                 //listen on our port and resolve once listening is enabled
-                this._http.listen(this.get('port'), function () {
+                var domain = this.get('host', '').split('/').pop();
+                this._http.listen(this.get('port'), domain, function () {
 
                     if (this.deferred) {
                         this.deferred.resolve(this);
