@@ -1,6 +1,6 @@
 {
     "name":               "liquidfire:Sockets",
-    "version":            "0.2.0",
+    "version":            "0.2.1",
     "description":        "Allows the browser to participate in event dispatching in Altair.",
     "events":             {
         "register-socket-strategies": "Tell me about your socket libraries (make sure they inherit strategies/_Base)",
