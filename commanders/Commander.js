@@ -41,6 +41,30 @@ define(['altair/facades/declare',
 
         },
 
+        create: function (options) {
+
+            return this.parent.forge('foundries/App').then(function (app) {
+
+                return app.forge(options);
+
+            }).step(function (msg) {
+
+                this.writeLine(msg);
+
+            }.bind(this)).then(function () {
+
+                this.writeLine('app created at: ' + values.destination);
+                this.writeLine('run the following commands:', 'h1');
+                this.writeLine('-----------------------');
+                this.writeLine('| $cd ' + values.destination);
+                this.writeLine('| $altair');
+                this.writeLine('-----------------------');
+
+
+            }.bind(this));
+
+        },
+
         /**
          * Update schema at runtime
          *

@@ -1,0 +1,17 @@
+{
+
+    "app": {
+        "strategy": {
+            "name": "socket.io",
+            "options": {
+                "mode": "server",
+                "host": "%(host)s",
+                "port": %(port)d
+            }
+        },
+        "options": {
+            "vendor": "%(vendor)s"
+        }
+    }
+
+}

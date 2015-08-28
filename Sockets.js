@@ -13,12 +13,14 @@ define(['altair/facades/declare',
         'altair/modules/commandcentral/mixins/_HasCommandersMixin',
         './mixins/_HasSocketStrategiesMixin',
         './extensions/Entity',
-        'lodash'
+        'lodash',
+        'altair/plugins/node!path'
 ], function (declare,
              _HasCommandersMixin,
              _HasSocketStrategiesMixin,
              EntityExtension,
-             _) {
+             _,
+             path) {
 
     return declare([_HasCommandersMixin, _HasSocketStrategiesMixin], {
 
@@ -65,7 +67,7 @@ define(['altair/facades/declare',
 
                 var options = this.options || {};
 
-                //did someone pass some sockets through?
+                //did someone pass some sockets settings?
                 if (options.sockets) {
 
                     this.refreshStrategies().then(function () {
@@ -80,10 +82,49 @@ define(['altair/facades/declare',
                     }.bind(this)).otherwise(this.log.bind(this));
 
                 }
+                //we have a full fledged app
+                else if (options.app) {
+
+                    this.startupApp(options.app.strategy, options.app.options);
+
+                }
 
                 return this;
 
             }));
+
+        },
+
+        startupApp: function (socketOptions, appOptions) {
+
+            this.log('Starting up socket app.');
+
+            //load latest strategies
+            return this.refreshStrategies().then(function () {
+
+                return this.startupSocket(socketOptions.name, socketOptions.options).otherwise(this.hitch('log'));
+
+            }.bind(this)).then(function (server) {
+
+                var app     = this.nexus('Altair').resolvePath('./App'),
+                    name    = appOptions.vendor + ':*';
+
+                appOptions.server = server;
+
+                return this.forge(app, appOptions, { type: 'app', name: name, parent: null });
+
+            }.bind(this)).then(function (app) {
+
+                //so nexus can resolve our app
+                this._nexus.set(app.name, app);
+
+                return app.execute();
+
+            }.bind(this)).otherwise(function (err) {
+
+                this.err(err);
+
+            }.bind(this));
 
         },
 

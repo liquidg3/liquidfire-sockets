@@ -6,6 +6,50 @@
         "label":        "Sockets",
         "commands": {
 
+            "create": {
+                "label": "Create a socket based App",
+                "description": "If you need a headless backend built and want the whole thing socket based, this is the way to go.",
+                "aliases": ["app"],
+                "schema": {
+                    "destination": {
+                        "type":    "path",
+                        "options": {
+                            "label":       "destination",
+                            "required":    true,
+                            "default":     ".",
+                            "description": "Where would you like your new app forged?"
+                        }
+                    },
+                    "vendor":      {
+                        "type":    "string",
+                        "options": {
+                            "pattern":     "[a-z]",
+                            "label":       "vendor name",
+                            "description": "A vendor is usually the name of your company or organization."
+
+                        }
+                    },
+                    "host":      {
+                        "type":    "string",
+                        "options": {
+                            "label":       "host",
+                            "default":     "http://localhost",
+                            "description": "Where should I listen?"
+
+                        }
+                    },
+                    "port":      {
+                        "type":    "integer",
+                        "options": {
+                            "label":       "port",
+                            "default":     9999,
+                            "description": "The port I should use."
+
+                        }
+                    }
+                }
+            },
+
             "start": {
                 "label": "Start a socket server",
                 "description": "Get connected to your sockets on.",

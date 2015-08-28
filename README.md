@@ -1,8 +1,27 @@
 # liquidfire:Sockets
 A strategy based approach to sockets. Currently only supports Socket.io (0.9.x), but implementing other socket libraries is easy enough.
 
+## Building an app
+If you want to build a headless socket based app with a nice `Controller` and `Model` structure, make start by executing.
 
-## Starting a server
+```bash
+$ altair sockets app
+```
+
+Follow the prompts until it creates your app. 
+
+### What got created
+Besides the files that got created when the [app was created](https://github.com/liquidg3/altair/blob/master/docs/app.md), here are the new things.
+
+- `configs/sockets.json`: The settings for your app for all environments
+- `configs/sockets-dev.json`: Settings just for dev
+- `controllers/Index.js`: Sample controller
+- `models`: An empty directory for your models
+
+Use the sample `Index` controller to get started. Any controller you create will automatically be loaded when the app starts.
+Use the `onConnection` callback to setup all your listeners, do authentication, etc.
+
+## Starting a server (standalone)
 To start a server when you start up `Altair`, add the following to your `modules.json` or `modules-dev.json`.
 
 ```json
