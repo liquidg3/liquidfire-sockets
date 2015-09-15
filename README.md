@@ -18,8 +18,7 @@ Besides the files that got created when the [app was created](https://github.com
 - `controllers/Index.js`: Sample controller
 - `models`: An empty directory for your models
 
-Use the sample `Index` controller to get started. Any controller you create will automatically be loaded when the app starts.
-Use the `onConnection` callback to setup all your listeners, do authentication, etc.
+Use the sample `Index` controller to get started.
 
 ## Starting a server (standalone)
 To start a server when you start up `Altair`, add the following to your `modules.json` or `modules-dev.json`.

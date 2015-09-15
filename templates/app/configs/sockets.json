@@ -1,14 +1,15 @@
 {
 
     "app": {
-        "strategy": {
+        "strategy": [{
             "name": "socket.io",
             "options": {
                 "mode": "server",
                 "host": "%(host)s",
+                "path": "/",
                 "port": %(port)d
             }
-        },
+        }],
         "options": {
             "vendor": "%(vendor)s"
         }

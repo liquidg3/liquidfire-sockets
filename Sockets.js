@@ -10,6 +10,7 @@
  */
 
 define(['altair/facades/declare',
+        'altair/mixins/_AssertMixin',
         'altair/modules/commandcentral/mixins/_HasCommandersMixin',
         './mixins/_HasSocketStrategiesMixin',
         './extensions/Entity',
@@ -17,6 +18,7 @@ define(['altair/facades/declare',
         'lodash',
         'altair/plugins/node!path'
 ], function (declare,
+             _AssertMixin,
              _HasCommandersMixin,
              _HasSocketStrategiesMixin,
              EntityExtension,
@@ -24,7 +26,7 @@ define(['altair/facades/declare',
              _,
              path) {
 
-    return declare([_HasCommandersMixin, _HasSocketStrategiesMixin], {
+    return declare([_AssertMixin, _HasCommandersMixin, _HasSocketStrategiesMixin], {
 
         _strategies: null,
         _activeSockets: null,
@@ -88,7 +90,7 @@ define(['altair/facades/declare',
                 //we have a full fledged app
                 else if (options.app) {
 
-                    this.startupApp(options.app.strategy, options.app.options);
+                    this.startupApp(options.app.strategies, options.app.options);
 
                 }
 
@@ -102,17 +104,23 @@ define(['altair/facades/declare',
 
             this.log('Starting up socket app.');
 
+            this.assertArray(socketOptions, 'socket options must be an array');
+
             //load latest strategies
             return this.refreshStrategies().then(function () {
 
-                return this.startupSocket(socketOptions.name, socketOptions.options).otherwise(this.hitch('log'));
+                return this.all(_.map(socketOptions, function (options) {
 
-            }.bind(this)).then(function (server) {
+                    return this.startupSocket(options.name, options.options);
+
+                }, this));
+
+            }.bind(this)).then(function (servers) {
 
                 var app     = this.nexus('Altair').resolvePath('./App'),
                     name    = appOptions.vendor + ':*';
 
-                appOptions.server = server;
+                appOptions.servers = servers;
 
                 return this.forge(app, appOptions, { type: 'app', name: name, parent: null });
 

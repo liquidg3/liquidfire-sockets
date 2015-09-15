@@ -15,6 +15,7 @@ define(['altair/facades/declare',
 
             //listen for events
             //connection.on('event-name', this.hitch('callbackWithAcknowledgement'));
+            //connection.on('event-name', { path: '/admin' }, this.hitch('callbackWithAcknowledgement'));
             //connection.on('event-name', this.hitch('callbackWithoutAcknowledgement'));
             //connection.on('event-name', this.hitch('callbackWithConnection', connection));
 

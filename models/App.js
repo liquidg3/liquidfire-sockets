@@ -20,25 +20,14 @@ define(['altair/facades/declare',
 
         //callbacks
         onConnection:       function (e) {
-
-            _.each(this._controllers, function (c) {
-                c.onConnection(e);
-            });
-
-
         },
         onDisconnect:       function (e) {
-
-            _.each(this._controllers, function (c) {
-                c.onDisconnect(e);
-            });
-
         },
 
         startup: function (options) {
 
             this.assert(options, 'You must pass your app model some options.');
-            this.assert(options.server, 'You must pass your app model a live socket server.');
+            this.assert(options.servers, 'You must pass your app model a socket servers.');
 
             //setup listeners for stubbed callbacks
             this.on('liquidfire:Sockets::did-connect').then(this.hitch('onConnection'));
