@@ -9,8 +9,8 @@ define(['altair/facades/declare',
 
         return declare([_Base], {
 
-            name:   'socket-entity',
-            _handles: ['entity'],
+            name:       'socket-entity',
+            _handles:   ['entity'],
             extend: function (Module) {
 
                 Module.extendOnce({
