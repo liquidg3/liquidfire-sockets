@@ -1,15 +1,27 @@
 {
 
     "app": {
-        "strategy": [{
-            "name": "socket.io",
-            "options": {
-                "mode": "server",
-                "host": "%(host)s",
-                "path": "/",
-                "port": %(port)d
+        "description": "Create a new strategy for each path. If the host and port match, sockets will be reused.",
+        "strategies": [
+            {
+                "name": "socket.io",
+                "options": {
+                    "mode": "server",
+                    "host": "%(host)s",
+                    "path": "/",
+                    "port": %(port)d
+                }
+            },
+            {
+                "name": "socket.io",
+                "options": {
+                    "mode": "server",
+                    "host": "%(host)s",
+                    "path": "/admin",
+                    "port": %(port)d
+                }
             }
-        }],
+        ],
         "options": {
             "vendor": "%(vendor)s"
         }

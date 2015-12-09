@@ -12,7 +12,9 @@ define(['altair/facades/declare',
          */
         startup: function () {
             var _args = arguments;
-            return this.parent.refreshStrategies().then(this.hitch(function () { return this.inherited(_args); }));
+            return this.parent.refreshStrategies().then(this.hitch(function () {
+                return this.inherited(_args);
+            }));
         },
 
         /**
@@ -25,7 +27,7 @@ define(['altair/facades/declare',
             //refresh strategies
             return this.parent.refreshStrategies().then(this.hitch(function (strategies) {
 
-                return this.forge(strategies[named], null, { startup: false });
+                return this.forge(strategies[named], null, {startup: false});
 
             })).then(this.hitch(function (strategy) {
 
@@ -51,7 +53,7 @@ define(['altair/facades/declare',
 
                 this.writeLine(msg);
 
-            }.bind(this)).then(function () {
+            }.bind(this)).then(function (values) {
 
                 this.writeLine('app created at: ' + values.destination);
                 this.writeLine('run the following commands:', 'h1');
@@ -76,7 +78,7 @@ define(['altair/facades/declare',
                 strategies;
 
             //the newModule command has some choices that need updating (destination dir)
-            if(command.callback === 'start') {
+            if (command.callback === 'start') {
 
                 strategies = this.parent.strategies();
                 schema.setOptionFor('strategy', 'choices', strategies);

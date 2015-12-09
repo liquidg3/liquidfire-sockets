@@ -107,7 +107,11 @@ define(['altair/facades/declare',
                 }.bind(this));
 
 
-            }.bind(this));
+            }.bind(this)).then(function () {
+
+                dfd.resolve(values);
+
+            });
 
             return dfd;
 

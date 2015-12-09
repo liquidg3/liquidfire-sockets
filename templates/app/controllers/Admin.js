@@ -11,7 +11,7 @@ define(['altair/facades/declare',
         startup: function (options) {
 
             //listen for connections on any path
-            this.on('liquidfire:Sockets::did-connect', { path: '/' }).then(this.hitch('onConnection'));
+            this.on('liquidfire:Sockets::did-connect', { path: '/admin' }).then(this.hitch('onConnection'));
             //this.on('liquidfire:Sockets::did-disconnect', { path: '/admin' }).then(this.hitch('onDisconnect'));
 
             return this.inherited(arguments);
@@ -23,12 +23,25 @@ define(['altair/facades/declare',
             //get the connection
             var connection = e.get('connection');
 
-            //listen for events
+            //listen for auth event only (before adding additional listeners)
+            connection.on('auth', this.hitch('auth', connection));
+        },
+
+        auth: function (connection) {
+
+            //do some authenticating
+            if (false) {
+                this.setupListeners(connection);
+            }
+
+        },
+
+        setupListeners: function (connection) {
+
+            //only setup listeners when someone is authenticated
             //connection.on('event-name', this.hitch('callbackWithAcknowledgement'));
-            //connection.on('event-name', { path: '/admin' }, this.hitch('callbackWithAcknowledgement'));
             //connection.on('event-name', this.hitch('callbackWithoutAcknowledgement'));
             //connection.on('event-name', this.hitch('callbackWithConnection', connection));
-
 
         },
 
