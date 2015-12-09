@@ -1,11 +1,13 @@
 define(['altair/facades/declare',
     'altair/Lifecycle',
-    'altair/mixins/_AssertMixin'
+    'altair/mixins/_AssertMixin',
+    'altair/events/Emitter'
 ], function (declare,
              Lifecycle,
-             _AssertMixin) {
+             _AssertMixin,
+             Emitter) {
 
-    return declare([Lifecycle, _AssertMixin], {
+    return declare([Lifecycle, _AssertMixin, Emitter], {
 
 
         startup: function (options) {
