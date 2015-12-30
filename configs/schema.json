@@ -1,0 +1,37 @@
+{
+    "properties": {
+        "host": {
+            "type": "string",
+            "options": {
+                "label": "Host",
+                "default": "0.0.0.0",
+                "description": "All sockets listen on this host unless they override it. Also used for any static file serving."
+            }
+        },
+
+        "port": {
+            "type": "integer",
+            "options": {
+                "label": "Port",
+                "default": 8080,
+                "description": "All sockets listen on this port unless they override it. Also used for static file serving."
+            }
+        },
+
+        "serveStaticPath": {
+            "type":    "path",
+            "options": {
+                "label": "Path to serve statically"
+            }
+        },
+
+        "serveStaticUrl": {
+            "type":    "string",
+            "options": {
+                "label": "URL for static files",
+                "defailt": "/"
+            }
+        }
+
+    }
+}

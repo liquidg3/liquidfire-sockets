@@ -12,6 +12,7 @@
 define(['altair/facades/declare',
         'altair/mixins/_AssertMixin',
         'altair/modules/commandcentral/mixins/_HasCommandersMixin',
+        'apollo/_HasSchemaMixin',
         './mixins/_HasSocketStrategiesMixin',
         './extensions/Entity',
         './extensions/Model',
@@ -20,16 +21,18 @@ define(['altair/facades/declare',
 ], function (declare,
              _AssertMixin,
              _HasCommandersMixin,
+             _HasSchemaMixin,
              _HasSocketStrategiesMixin,
              EntityExtension,
              ModelExtension,
              _,
              path) {
 
-    return declare([_AssertMixin, _HasCommandersMixin, _HasSocketStrategiesMixin], {
+    return declare([_AssertMixin, _HasCommandersMixin, _HasSocketStrategiesMixin, _HasSchemaMixin], {
 
-        _strategies: null,
+        _strategies:    null,
         _activeSockets: null,
+        _staticServer:  null,
 
         /*
          * @param options
@@ -196,6 +199,10 @@ define(['altair/facades/declare',
 
             var alfred      = this.nexus('titan:Alfred'),
                 _options    = options,
+                host        = this.get('host'),
+                port        = this.get('port'),
+                staticPath  = this.get('serveStaticPath'),
+                staticUrl   = this.get('serveStaticUrl'),
                 activeServer;
 
             //if there is an active server in alfred, use its http server (maybe support more later if needed)
@@ -206,6 +213,38 @@ define(['altair/facades/declare',
                 if (activeServer) {
                     _options.http = activeServer.http();
                 }
+
+            }
+
+            //supply a host and port if the socket does not have theyr own
+            if (staticPath && staticUrl) {
+
+                if (!this._staticServer) {
+
+                    require(['altair/plugins/node!node-static', 'altair/plugins/node!http', 'altair/plugins/node!https'], function (nodeStatic, http, https) {
+
+                        var file = new nodeStatic.Server(staticPath);
+
+                        this.log('Statically serving', staticPath, 'at', host + ':' + port);
+
+                        this._staticServer = http.createServer(function (request, response) {
+
+                            request.addListener('end', function () {
+                                file.serve(request, response);
+                            }).resume();
+
+                        }).listen(port, host);
+
+                    }.bind(this));
+
+                }
+
+                _options.http = this._staticServer
+
+            }
+
+
+            if (!_options.host) {
 
             }
 

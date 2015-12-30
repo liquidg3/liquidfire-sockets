@@ -1,1 +1,4 @@
-{}
+{
+    "host.override-if-necessary": "%(host)s",
+    "port.override-if-necessary": %(port)d
+}

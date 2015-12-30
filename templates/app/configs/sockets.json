@@ -1,5 +1,9 @@
 {
 
+    "host": "%(host)s",
+    "port": %(port)d,
+    "serveStaticPath": "./web",
+    "serveStaticUrl": "/",
     "app": {
         "description": "Create a new strategy for each path. If the host and port match, sockets will be reused.",
         "strategies": [
@@ -7,18 +11,16 @@
                 "name": "socket.io",
                 "options": {
                     "mode": "server",
-                    "host": "%(host)s",
                     "path": "/",
-                    "port": %(port)d
                 }
             },
             {
                 "name": "socket.io",
                 "options": {
                     "mode": "server",
-                    "host": "%(host)s",
+                    "host.override-if-necessary": "%(host)s",
+                    "port.override-if-necessary": %(port)d
                     "path": "/admin",
-                    "port": %(port)d
                 }
             }
         ],
