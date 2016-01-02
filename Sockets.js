@@ -245,7 +245,11 @@ define(['altair/facades/declare',
 
 
             if (!_options.host) {
+                _options.host = host;
+            }
 
+            if (!_options.port) {
+                _options.port = port;
             }
 
             if (!this._strategies) {
