@@ -99,17 +99,22 @@ onSomeEvent: function (connection, data) {
 
 ```
 
-## Using Socket Browser Side
-You can connect to your socket server from the browser from any javascript file.
+## Emitting Events Server Side to Everyone (or by namespace)
 ```js
 
-altair.sockets.emit('test', {
-    foo: 'bar'
-}, function () {
-    
-})
+var sockets = this.nexus('liquidfire:Sockets');
+
+//emit to first socket server
+sockets.socket().emit('event-name', { ... });
+
+//emit by namespace
+sockets.socket('/admin').emit('event-name', { ... });
 
 ```
+
+## Using Socket Browser Side
+Connecting client side is done using whatever strategy you have chosen. Socket.io client documentation is [here](http://socket.io/docs/client-api/).
+
 ##SSL
 Getting socket connections to work via SSL means configuring the `Sockets` module. You can do that
 in your `modules.json` or your `modules-dev.json`.

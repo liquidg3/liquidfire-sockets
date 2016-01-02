@@ -288,7 +288,29 @@ define(['altair/facades/declare',
 
         activeSockets: function () {
             return this._activeSockets;
+        },
+
+        /**
+         * Get the first socket connection
+         *
+         * @param namespace
+         * @returns {*}
+         */
+        socket: function (namespace) {
+
+            if (!namespace) {
+                return this.activeSockets()[0];
+            }
+
+            var match = _.filter(this._activeSockets, function (socket) {
+                return socket.get('path') === namespace;
+            });
+
+            return match[0];
+
         }
+
+
 
 
 
