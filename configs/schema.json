@@ -29,7 +29,7 @@
             "type":    "string",
             "options": {
                 "label": "URL for static files",
-                "defailt": "/"
+                "default": "/"
             }
         }
 

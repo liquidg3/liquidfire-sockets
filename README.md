@@ -214,3 +214,27 @@ Then make sure the settings for `Sockets` matches in your `modules.json`:
 ```
 
 Now your sockets and http requests all go through the same port and connection!
+
+#Serving pages without `Alfred`
+If you want the `Sockets` module to serve files for you, modify your config like so
+
+
+```json
+"liquidfire:Sockets": {
+    "host": "0.0.0.0",
+    "port: 8080,
+    "serveStaticPath": "./path/to/html/files",
+    "serveStaticUrl: "/"
+    "sockets": [
+        {
+            "name": "socketio",
+            "options": {
+                "mode": "server"
+            }
+        }
+
+    ]
+}
+```
+
+Then make sure you have an `index.html` file inside of `./path/to/html/files'.

@@ -320,6 +320,13 @@ define(['altair/facades/declare',
 
                 }
 
+                if (this.options.http) {
+                    this.log('re-using http passed to socket.io');
+                    this._http = this.options.http;
+                } else if (this.options.https) {
+                    this.log('re-using https passed to socket.io');
+                    this._http = this.options.https;
+                }
 
                 if (!this._http) {
 
