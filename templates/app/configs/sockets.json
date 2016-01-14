@@ -11,7 +11,7 @@
                 "name": "socket.io",
                 "options": {
                     "mode": "server",
-                    "path": "/",
+                    "path": "/"
                 }
             },
             {
@@ -19,8 +19,8 @@
                 "options": {
                     "mode": "server",
                     "host.override-if-necessary": "%(host)s",
-                    "port.override-if-necessary": %(port)d
-                    "path": "/admin",
+                    "port.override-if-necessary": %(port)d,
+                    "path": "/admin"
                 }
             }
         ],

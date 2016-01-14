@@ -16,6 +16,8 @@ define(['altair/facades/declare',
         './mixins/_HasSocketStrategiesMixin',
         './extensions/Entity',
         './extensions/Model',
+        './extensions/Utility',
+        './extensions/Service',
         'lodash',
         'altair/plugins/node!path'
 ], function (declare,
@@ -25,6 +27,8 @@ define(['altair/facades/declare',
              _HasSocketStrategiesMixin,
              EntityExtension,
              ModelExtension,
+             UtilityExtension,
+             ServiceExtension,
              _,
              path) {
 
@@ -49,9 +53,11 @@ define(['altair/facades/declare',
             //getSocketValues extension
             var extensions      = this.nexus('cartridges/Extension'),
                 entity          = new EntityExtension(extensions),
-                model           = new ModelExtension(extensions);
+                model           = new ModelExtension(extensions),
+                service         = new ServiceExtension(extensions),
+                utility         = new UtilityExtension(extensions);
 
-            extensions.addExtensions([entity, model]);
+            extensions.addExtensions([entity, model, service, utility]);
 
             //whenever a web server is booted, make sure each strategy is notified so it can copy css/js if needed
             if (this.nexus('titan:Alfred')) {

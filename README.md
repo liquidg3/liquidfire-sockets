@@ -1,8 +1,21 @@
 # liquidfire:Sockets
-A strategy based approach to sockets. Currently only supports Socket.io (0.9.x), but implementing other socket libraries is easy enough.
+Need to build a headless, socket based app? How about a socket based app using htmlA strategy based approach to sockets. Currently only supports Socket.io (~1.3.7), but implementing other socket libraries is easy enough.
 
 ## Building an app
-If you want to build a headless socket based app with a nice `Controller` and `Model` structure, make start by executing.
+If you want to build a headless socket based app with a nice `Controller`, `Model`, `Service`, `Utility` structure. Before building your
+socket app, you need to setup the environment and install `Sockets`.
+
+```bash
+$ altair forge app
+```
+
+Once you build your app, install `Sockets`.
+
+```bash
+$ altair lodge install liquidfire:Sockets
+```
+
+Now lets forge the socket app.
 
 ```bash
 $ altair sockets app
@@ -16,7 +29,18 @@ Besides the files that got created when the [app was created](https://github.com
 - `configs/sockets.json`: The settings for your app for all environments
 - `configs/sockets-dev.json`: Settings just for dev
 - `controllers/Index.js`: Sample controller
+- `controllers/Admin.js`: Another sample controller
+- `controllers/README.md`: More details on controllers
+- `App.js`: The main app model
 - `models`: An empty directory for your models
+- `models/README.md`: More details on models (hint, don't think databases)
+- `utilities`: An empty directory for your utilities
+- `utilities/README.md`: More details on utilities
+- `services`: An empty directory for your services
+- `services/README.md`: More details on services
+- `web`: An empty directory for your web assets
+- `web/index.html`: Hello world
+- `web/README.md`: More details on services
 
 Use the sample `Index` controller to get started.
 
