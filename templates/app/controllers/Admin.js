@@ -29,7 +29,7 @@ define(['altair/facades/declare',
             connection.on('auth', this.hitch('auth', connection));
         },
 
-        auth: function (connection) {
+        auth: function (connection, username, password) {
 
             //do some authenticating
             if (false) {
