@@ -15,7 +15,7 @@ define(['altair/facades/declare',
         return declare([_Base], {
 
             name: 'controller-service',
-            _handles: ['controller', 'app', 'module'],
+            _handles: ['controller', 'app', 'module', 'service'],
             extend: function (Module) {
 
                 Module.extendOnce({
