@@ -11,17 +11,17 @@ define(['altair/facades/declare',
 ], function (declare, _Base, Deferred, http, https, fs, io, Client, schema, _) {
 
     return declare([_Base], {
-        _ignoreExtensions:  ['events'],
-        _schema:            schema,
-        _http:              null,
-        _server:            null,
-        _client:            null,
-        _serversByPort:     {}, //global static cache of server sockets
-        _serverPromises:     {}, //global static cache of server sockets
+        _ignoreExtensions: ['events'],
+        _schema: schema,
+        _http: null,
+        _server: null,
+        _client: null,
+        _serversByPort: {}, //global static cache of server sockets
+        _serverPromises: {}, //global static cache of server sockets
         _activeConnections: null,
-        _activeListeners:   null,
-        _onDeferreds:       null,
-        ssl:                null, //secure settings
+        _activeListeners: null,
+        _onDeferreds: null,
+        ssl: null, //secure settings
 
         /**
          * Setup the socket adapter.
@@ -148,7 +148,8 @@ define(['altair/facades/declare',
         on: function (event, query) {
 
             var dfd = new Deferred(),
-                cb = _.isFunction(query) ? query : function () {},
+                cb = _.isFunction(query) ? query : function () {
+                },
                 resolve = function (data) {
                     var e = this.coerceEvent(event, data);
                     cb(e);
@@ -244,13 +245,13 @@ define(['altair/facades/declare',
                 };
             }
 
-            _data.strategy  = this;
-            _data.mode      = _data.mode || this.get('mode');
-            _data.port      = _data.port || this.get('port');
-            _data.host      = _data.host || this.get('host');
-            _data.path      = _data.path || this.get('path');
-            _data.client    = _data.client || this.client();
-            _data.server    = _data.server || this.server();
+            _data.strategy = this;
+            _data.mode = _data.mode || this.get('mode');
+            _data.port = _data.port || this.get('port');
+            _data.host = _data.host || this.get('host');
+            _data.path = _data.path || this.get('path');
+            _data.client = _data.client || this.client();
+            _data.server = _data.server || this.server();
 
             return _data;
 
@@ -291,8 +292,8 @@ define(['altair/facades/declare',
             } else {
 
                 var options = {},
-                    titan   = this.nexus('titan:Alfred'),
-                    skip    = false,
+                    titan = this.nexus('titan:Alfred'),
+                    skip = false,
                     server;
 
                 if (this.get('path') && this.get('path') !== '/') {
@@ -367,8 +368,8 @@ define(['altair/facades/declare',
                 //emit our connect event
                 this.parentEmit('did-connect', {
                     connection: conn,
-                    server:     this,
-                    path:       this.get('path', '/')
+                    server: this,
+                    path: this.get('path', '/')
                 });
 
                 //remote end is registering for an event
@@ -390,8 +391,8 @@ define(['altair/facades/declare',
 
                     this.parentEmit('did-disconnect', {
                         connection: conn,
-                        server:     this,
-                        path:       this.get('path', '/')
+                        server: this,
+                        path: this.get('path', '/')
                     });
 
                     this.unRegisterEventListeners(conn);
@@ -460,7 +461,7 @@ define(['altair/facades/declare',
 
             //only startup one server per port (we share across socket.io strategies)
             //we work with the raw (non namespaced) server here
-            if (this._server  && ['server', 'relay'].indexOf(this.get('mode')) > -1) {
+            if (this._server && ['server', 'relay'].indexOf(this.get('mode')) > -1) {
 
                 if (!this._serverPromises[this.get('port')]) {
 

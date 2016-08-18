@@ -2,25 +2,22 @@ define(['altair/facades/declare',
         'altair/cartridges/extension/extensions/_Base',
         'altair/Deferred',
         'altair/plugins/node!path',
-        'altair/facades/mixin',
-        'altair/facades/hitch'],
+        'altair/facades/mixin'],
 
     function (declare,
               _Base,
               Deferred,
               pathUtil,
-              mixin,
-              hitch) {
+              mixin) {
 
         return declare([_Base], {
 
             name: 'controller-model',
-            _handles: ['controller', 'app', 'module', 'model', 'service'],
+            _handles: ['controller', 'app', 'module', 'model'],
             extend: function (Module) {
 
                 Module.extendOnce({
                     modelPath: './models',
-                    _models: null,
                     model: function (named, options, config) {
 
                         var _p = named.search(':') === -1 ?  this.resolvePath(pathUtil.join(this.modelPath, named)) : '',
@@ -48,18 +45,8 @@ define(['altair/facades/declare',
 
                         }
 
-                        //init models cache
-                        if (!this._models) {
-                            this._models = {};
-                        }
+                        return this.forgeSync(_p, options, _c);
 
-                        if (this._models[named] && _c.cache) {
-                            return this._models[named];
-                        }
-
-                        this._models[named] = this.forgeSync(_p, options, _c);
-
-                        return this._models[named];
 
                     }
                 });

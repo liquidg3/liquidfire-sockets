@@ -10,6 +10,8 @@ define(['altair/facades/declare',
               pathUtil,
               mixin) {
 
+
+
         return declare([_Base], {
 
             name: 'controller-utilities',
@@ -18,7 +20,12 @@ define(['altair/facades/declare',
 
                 Module.extendOnce({
                     utilityPath: './utilities',
+                    _utilityCache: {},
                     utility: function (named, options, config) {
+
+                        if (this._utilityCache[named]) {
+                            return this._utilityCache[named];
+                        }
 
                         var _p = named.search(':') === -1 ?  this.resolvePath(pathUtil.join(this.utilityPath, named)) : '',
                             _c = mixin({
@@ -45,7 +52,8 @@ define(['altair/facades/declare',
 
                         }
 
-                        return this.forgeSync(_p, options, _c);
+                        this._utilityCache[named] =  this.forgeSync(_p, options, _c);
+                        return this._utilityCache[named];
 
                     }
                 });
